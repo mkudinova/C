@@ -1,0 +1,82 @@
+Описание структуры
+struct A{
+	struct A* p_next;
+	int b;
+};
+struct A* p_first;
+
+Пример простой программы, в которой есть структуры такого вида (в Вашей программе из main должны просто вызываться функции добавления и удаления элементов, без вот этого всего)
+int main(){
+	
+	struct A x;
+	struct A * p;
+	p=&x;
+	
+	x.p_next=NULL;
+	p->p_next=NULL;
+	
+	printf("%d", x.p_next);
+	
+	return 0;
+}
+
+Куски кода из добавления элементов к конец списка
+1) создание и инициализация нового элемента
+	p = (struct A *)malloc(sizeof(struct A)); 	if (p == NULL) {printf("ERROR: cannot allocate memory!\n"); return;}
+	p->p_next = NULL;
+	p->b = c;
+2) создание "связей" 
+	if (p_first==NULL)
+	{
+		p_first = p;
+	} //если список пуст
+
+	else
+	{
+		s = findlast();
+		s->p_next = p;
+	}//если список НЕ пуст
+
+Функция прохода по списку и поиска последнего элемента
+struct A* findlast()
+{
+	struct A *p = p_first;
+	
+	if (p == NULL) {return NULL;}
+	
+	while (p->p_next != NULL)
+	{
+		p = p->p_next;
+	}
+	return p;
+}
+
+Кусочки кода из удаления последнего элемента
+1) Если список пуст
+	if (p_first == NULL)
+	{
+		printf("Nothing to delete. Empty list.\n");
+		return;
+	}
+//no elements in the list
+
+2) Если в списке ровно 1 элемент
+	if (p_first->p_next==NULL)
+	{
+		free(p_first);
+		p_first=NULL;
+		printf("One elem was deleted from the end of the list. Now the list is empty.\n");
+		return;
+	}
+//only 1 element
+
+3) если в списке много элементов (>1)
+while (p->p_next!=NULL)
+	{
+		s = p;
+		p = p->p_next;
+	}
+	s->p_next=NULL;
+	printf("One elem was deleted from the end of the list.\n");
+	free(p);
+//many elements in the list
