@@ -1,0 +1,292 @@
+// List sample
+
+#include<stdio.h>
+#include<stdlib.h>
+
+#define True 1
+
+struct A{
+	struct A* p_next;
+	int b;
+};
+struct A* p_first;
+
+struct A* findlast();
+struct A* find(int c);
+struct A* find_last_less_than(int c);
+void add_last_elem(int c);
+void add_as_sorted_list(int c);
+void delete_first_elem();
+void delete_last_elem();
+void delete_elem(int c);
+void print_list();
+void print_elem(struct A* p_elem);
+
+
+int main()
+{
+	int k, action;
+	struct A* p_temp;
+	
+	while (True)
+	{
+		scanf("%d", &action);
+		switch (action){
+			case 0:
+				return 0;
+			case 1:
+				scanf("%d", &k);
+				add_last_elem(k);
+				break;
+			case 2:
+				delete_last_elem();
+				break;
+			case 3:
+				p_temp = findlast();
+				print_elem(p_temp);
+				break;
+			case 4:
+				scanf("%d", &k);
+				p_temp = find(k);
+				print_elem(p_temp);
+				break;
+			case 5:
+				delete_first_elem();
+				break;
+			case 6:
+				scanf("%d", &k);
+				delete_elem(k);
+				break;
+			case 7:
+				scanf("%d", &k);
+				p_temp = find_last_less_than(k);
+				print_elem(p_temp);
+				break;
+			case 8:
+				scanf("%d", &k);
+				add_as_sorted_list(k);
+				break;
+			default:
+				print_list();
+				break;
+		}
+	}	
+}
+
+struct A* findlast()
+{
+	struct A *p = p_first;
+	
+	if (p == NULL) {return NULL;}
+	
+	while (p->p_next != NULL)
+	{
+		p = p->p_next;
+	}
+	return p;
+}
+
+struct A* find(int c)
+{
+	struct A *p = p_first;
+	
+	if (p == NULL) {return NULL;}
+	
+	if (p->b == c)
+		return p;
+	
+	while (p->p_next != NULL)
+	{
+		p = p->p_next;
+		if (p->b == c)
+			return p;
+	}
+	
+	return NULL;
+}
+
+struct A* find_last_less_than(int c)
+{
+	struct A *p = p_first, *s=NULL;
+	
+	while (p!=NULL)
+	{
+		if (p->b < c)
+			s=p;
+		p=p->p_next;
+	}
+	return s;
+}
+
+void add_last_elem(int c)
+{
+	struct A *p, *s; // p - pointer to the new element, s - pointer to the previous element
+	
+	p = malloc(sizeof(struct A)); 	if (p == NULL) {printf("ERROR: cannot allocate memory!\n"); return;}
+	
+	if (p_first==NULL)
+	{
+		p_first = p;
+	}
+	else
+	{
+		s = findlast();
+		s->p_next = p;
+	}
+	
+	p->p_next = NULL;
+	p->b = c;
+	
+	printf("Element %d was added to the end of the list.\n", c);
+	return;
+}
+
+void add_as_sorted_list(int c)
+{
+	struct A *p_prev_elem, *p_new_elem, *p_next_elem;
+	
+	// find element after which we want to insert the new one
+	p_prev_elem = find_last_less_than(c);
+	// allocate memory for the new element and get pointer to the allocated memory region
+	p_new_elem = malloc(sizeof(struct A));
+	if (p_new_elem == NULL) {printf("ERROR: cannot allocate memory!\n"); return;}
+	
+	// insert the new element into the list
+	if (p_prev_elem==NULL) 
+	{
+		// this new element must be the first element in the list
+		p_next_elem = p_first;
+		p_first = p_new_elem;
+	}
+	else
+	{
+		// this new element must be inserted after some other element
+		p_next_elem = p_prev_elem->p_next;
+		p_prev_elem->p_next = p_new_elem;
+	}
+	
+	// initialise the new element
+	p_new_elem->p_next = p_next_elem;
+	p_new_elem->b = c;
+	
+	return;
+}
+
+/*void add_as_sorted_list(int c) // shorter view
+{
+	struct A *s, *p, *t; // s = p_prev_elem, p = p_new_elem, t = p_next_elem;
+	
+	s = find_last_less_than(c);
+	p = malloc(sizeof(struct A)); 	if (p == NULL) {printf("ERROR: cannot allocate memory!\n"); return;}
+	if (s==NULL) 
+	{
+		t = p_first;
+		p_first = p;
+	}
+	else
+	{
+		t = s->p_next;
+		s->p_next = p;
+	}
+	p->p_next = t;
+	p->b = c;
+	return;
+}*/
+
+void delete_last_elem()
+{
+	struct A *p = p_first, *s=NULL;
+	if (p_first == NULL)
+	{
+		printf("Nothing to delete. Empty list.\n");
+		return;
+	}
+	while (p->p_next!=NULL)
+	{
+		s = p;
+		p = p->p_next;
+	}
+	if (s==NULL)
+	{
+		p_first=NULL;
+		printf("One elem was deleted from the end of the list. Now the list is empty.\n");
+	}
+	else
+	{
+		s->p_next=NULL;
+		printf("One elem was deleted from the end of the list.\n");
+	}
+	free(p);
+	return;
+}
+
+void delete_first_elem()
+{
+	struct A* p=p_first;
+	if (p!=NULL) 
+	{
+		p_first = p->p_next;
+		free(p);
+	}
+	return;
+}
+
+void delete_elem(int c)
+{
+	struct A* p=p_first, *s=NULL;
+	while(p!=NULL)
+	{
+		if (p->b==c)
+		{
+			if (s==NULL)
+				p_first = p->p_next; // can be done using delete_first_elem();
+			else
+				s->p_next=p->p_next;
+			free(p);
+		}
+		s=p;
+		p=p->p_next;
+	}
+	return;
+}
+
+void print_list()
+{
+	struct A* p=p_first;
+	
+	if (p == NULL)
+	{
+		printf("The list is empty.\n");
+		return;
+	}
+	printf("Start list:\n");
+	print_elem(p);
+	while (p->p_next != NULL)
+	{
+		p = p->p_next;
+		print_elem(p);
+	}
+	printf("End of list.\n");
+	return;
+}
+
+/*void print_list() // shorter view
+{
+	struct A* p=p_first;
+	while (p != NULL)
+	{
+		print_elem(p);
+		p = p->p_next;
+	}
+	return;
+}*/
+
+void print_elem(struct A* p_elem)
+{
+	if (p_elem != NULL)
+		printf("%x , %x, %d\n", (unsigned int)p_elem, (unsigned int)p_elem->p_next, p_elem->b);
+	return;
+}
+
+
+
