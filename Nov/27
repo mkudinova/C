@@ -1,0 +1,130 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Tree
+{
+    int number; // какие-то данные
+    struct Tree* p_left; //указатель на левого потомка
+    struct Tree* p_right; //указатель на правого потомка
+};
+
+struct Tree* p_root; // создание указателя корень дерева
+
+// псевдо код для поиска в ширину (если делать его через список, который будет играть роль очереди)
+/*void breadth_first_search (){ // поиск в ширину
+	if (p_tmp==NULL){ // если дерево пусто
+		return;
+	}
+  
+	add_to_end_of_the_list(p_root); // положить корень дерева в список
+	while (list_is_not_empty()){ // пока в списке есть элементы
+		proceed_first_elem_in_the_list(); // обработать элемент
+		delete_from_beginning_of_the_list(); // удалить элемент
+	}
+	
+	return;
+}
+void proceed_first_elem_in_the_list(){ // функция обработки элемента
+	printf(current elem); // полезная работа
+	for all its children{
+		add_to_end_of_the_list(child); // добавить всех потомков данного элемента в конец списка
+	}
+}
+*/
+
+void depth_first_search(struct Tree *p_tmp){ // обход дерева в глубину - рекурсивный
+	if (p_tmp==NULL){ // если дерево пусто
+		return;
+	}
+	depth_first_search(p_tmp->p_left);
+	printf("%d - ", p_tmp->number); // полезная работа
+	depth_first_search(p_tmp->p_right);
+	return;	
+}
+
+struct Tree* find_parent(int number){ // найти подходящий paternt для вставляемого элемента
+	struct Tree *p_tmp;
+	
+	if (p_root==NULL){ // если дерево пусто
+		return NULL;
+	}
+	
+	p_tmp=p_root;
+	while(p_tmp!=NULL){
+		if (p_tmp->number > number){ // если значение у эелемента, который надо вставить, меньше, чем у текущего
+			if  (p_tmp->p_left !=NULL){ // и у него есть левый потомок
+				p_tmp=p_tmp->p_left; // рассмотрим его левоого потомка
+			}
+			else{ // если нет левого потомка
+				return p_tmp; // значит этот нам подходит
+        // обратите внимание, что если бы не было разбиения на функции, то вот здесь можно было бы сразу и вставить потомка ему
+			}
+		}	
+		if (p_tmp->number < number){ // аналогично для бОльших значений, и => правых потомков
+			if  (p_tmp->p_right !=NULL){
+				p_tmp=p_tmp->p_right;
+			}
+			else{
+				return p_tmp;
+			}
+		}
+		if (p_tmp->number == number){ // запрещает вставлять повторяющиеся элементы (это опционально)
+			return NULL;
+		}
+	}
+}
+
+
+int add_elem(int number){
+	struct Tree *p_tmp;
+	
+	struct Tree *p = (struct Tree *)malloc(sizeof(struct Tree)); //выделяем память под элемент
+	p->p_left=NULL; //заполняем поля элемента 
+	p->p_right=NULL; //заполняем поля элемента
+	p->number= number; //заполняем поля элемента
+	
+	if (p_root==NULL){  // если дерево пусто
+		p_root = p;
+		return 0;
+	}
+	
+	p_tmp=find_parent(number);
+	if (p_tmp==NULL){// доп проверка корректности работы find_parent()
+		printf("error 1 in find_parent()"); // доп проверка корректности работы find_parent()
+		return -1;
+	}
+	
+	if (p_tmp->number > number){
+		if(p_tmp->p_left==NULL) // доп проверка корректности работы find_parent()
+			p_tmp->p_left=p;
+		else {// доп проверка корректности работы find_parent()
+			printf("error 2 in find_parent()"); // доп проверка корректности работы find_parent()
+			return -1;
+		}
+	}
+	else{ // абсолютно симметрично случаю внутри if, 
+		if(p_tmp->p_right==NULL) // доп проверка корректности работы find_parent()
+			p_tmp->p_right=p;
+		else {// доп проверка корректности работы find_parent()
+			printf("error 3 in find_parent()"); // доп проверка корректности работы find_parent()
+			return -1;
+		}
+	}
+	
+	return 0;
+}
+
+int main(){
+	int n=1;
+	p_root=NULL;
+	
+	while(n!=0){
+		scanf("%d",&n);
+		if (0 != add_elem(n)){ // т.к. функция add_elem() может вернуть ошибку, проверяем не было ли ошибок
+			printf("error in add_elem(), %d\n", n);
+		}
+	}
+	
+	depth_first_search(p_root); // вызываем обход всего дерева в глубину (можно и для любого поддерева делать)
+	return 0;
+}
